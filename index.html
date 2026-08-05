@@ -286,7 +286,173 @@ opacity:1;
 transform:translateY(0);
 }
 }
+#btnConversor{
+position:fixed;
+top:75px;
+right:20px;
+width:auto;
+padding:10px 16px;
 
+background:linear-gradient(135deg,#16a34a,#15803d);
+color:white;
+
+border:none;
+border-radius:50px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+z-index:2000;
+
+box-shadow:0 6px 18px rgba(0,0,0,.35);
+
+transition:.25s;
+}
+
+#btnConversor:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(0,0,0,.4);
+}
+
+#btnConversor:active{
+transform:scale(.97);
+}
+
+#panelConversor{
+
+position:fixed;
+top:0;
+right:-400px;
+
+width:350px;
+height:100%;
+
+padding:20px;
+
+overflow-y:auto;
+
+background:rgba(255,255,255,.95);
+backdrop-filter:blur(10px);
+
+box-shadow:-5px 0 20px rgba(0,0,0,.3);
+
+border-top-left-radius:18px;
+border-bottom-left-radius:18px;
+
+transition:.3s;
+
+z-index:998;
+
+}
+
+#panelConversor.activo{
+right:0;
+}
+
+#panelConversor h3{
+
+text-align:center;
+
+font-size:24px;
+
+margin-bottom:20px;
+
+background:linear-gradient(90deg,#16a34a,#22c55e);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+
+}
+
+#panelConversor input{
+
+width:100%;
+
+padding:12px;
+
+margin:8px 0 18px;
+
+border:none;
+border-radius:12px;
+
+background:#f1f5f9;
+
+box-shadow:inset 0 2px 6px rgba(0,0,0,.08);
+
+}
+
+#panelConversor button{
+
+width:100%;
+
+padding:12px;
+
+margin-top:10px;
+
+border:none;
+border-radius:12px;
+
+background:linear-gradient(135deg,#16a34a,#15803d);
+
+color:white;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:.2s;
+
+box-shadow:0 6px 15px rgba(0,0,0,.2);
+
+}
+
+#panelConversor button:hover{
+
+transform:translateY(-2px);
+
+box-shadow:0 10px 25px rgba(0,0,0,.3);
+
+}
+
+#resultadoConversion{
+
+margin-top:20px;
+padding:18px;
+
+border-radius:18px;
+
+background:linear-gradient(135deg,#ecfdf5,#ffffff);
+border:2px solid #bbf7d0;
+
+box-shadow:0 8px 20px rgba(0,0,0,.12);
+
+font-size:17px;
+font-weight:600;
+
+line-height:1.15;
+color:#1e293b;
+
+}
+
+#resultadoConversion b{
+display:inline;
+margin:0;
+font-size:16px;
+}
+
+#resultadoConversion .ganancia{
+color:#16a34a;
+font-size:22px;
+font-weight:700;
+margin:4px 0;
+}
+
+#resultadoConversion .perdida{
+color:#dc2626;
+font-size:22px;
+font-weight:700;
+margin:4px 0;
+}
 </style>
 
 </head>
@@ -360,7 +526,8 @@ transform:translateY(0);
       
   </button>
 
-</div> <!-- 🔥 ESTE DIV TE FALTABA -->
+</div>
+
 
 <!-- 📦 DECLARACIÓN -->
 <div id="declaracion" style="display:none;margin-top:15px;background:#fff3cd;padding:12px;border-radius:10px;">
@@ -427,6 +594,62 @@ Calcular impuestos
   <div id="historialContenido"></div>
 
 </div>
+  
+  <button onclick="toggleConversor()" id="btnConversor">
+💱 Conversor
+</button>
+
+  <div id="panelConversor">
+
+<h3 style="text-align:center;font-size:24px;color:#2563eb;">
+💱 Simulador Compra / Venta
+</h3>
+
+<label>Total de compra (USD)</label>
+<input type="number" id="usdValor" placeholder="Ej: 25">
+
+<label>Precio al que lo vas a vender</label>
+<input type="number" id="precioVenta" placeholder="Ej: 65000">
+
+<label>Valor de 1 USD a moneda local</label>
+<input type="number" id="cotizacionLocal" value="1430">
+
+<label>Correo Argentino (Solo Argentina)</label>
+<input type="number" id="correoArg" placeholder="Ej: 7600">
+<button
+onclick="convertirMoneda()"
+style="
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:14px;
+background:#2563eb;
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 6px 15px rgba(37,99,235,.3);
+">
+💰 Calcular ganancia
+</button>
+
+<div id="resultadoConversion"
+style="
+margin-top:20px;
+padding:18px;
+background:#eff6ff;
+border:1px solid #bfdbfe;
+border-radius:18px;
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+font-weight:bold;
+white-space:pre-line;
+line-height:1.8;
+font-size:16px;
+">
+
+</div>
+  
 <script>
 
 // 📞 CONTACTOS REALES
@@ -1353,8 +1576,16 @@ calcular();
 alert("Pedido cargado nuevamente ✅");
 }
 function toggleHistorial(){
-let panel = document.getElementById("panelHistorial");
-panel.classList.toggle("activo");
+
+let historial = document.getElementById("panelHistorial");
+let conversor = document.getElementById("panelConversor");
+
+// cerrar conversor
+conversor.classList.remove("activo");
+
+// abrir/cerrar historial
+historial.classList.toggle("activo");
+
 }
 
 function vaciarHistorial(){
@@ -1370,20 +1601,31 @@ renderHistorial();
 
 document.addEventListener("click", function(e){
 
-let panel = document.getElementById("panelHistorial");
-let boton = document.getElementById("btnHistorial");
+let historial = document.getElementById("panelHistorial");
+let btnHistorial = document.getElementById("btnHistorial");
 
-// si el panel está abierto
-if(panel.classList.contains("activo")){
+let conversor = document.getElementById("panelConversor");
+let btnConversor = document.getElementById("btnConversor");
 
-// si NO clickeaste ni el panel ni el botón → cerrar
-if(!panel.contains(e.target) && !boton.contains(e.target)){
-panel.classList.remove("activo");
+// Cerrar historial
+if(
+historial.classList.contains("activo") &&
+!historial.contains(e.target) &&
+!btnHistorial.contains(e.target)
+){
+historial.classList.remove("activo");
 }
 
+// Cerrar conversor
+if(
+conversor.classList.contains("activo") &&
+!conversor.contains(e.target) &&
+!btnConversor.contains(e.target)
+){
+conversor.classList.remove("activo");
 }
 
-}); // 🔥 CIERRA EL CLICK
+});
 
 // 💱 COTIZACIÓN AUTOMÁTICA
 
@@ -1469,5 +1711,59 @@ document.getElementById("statProducto").innerText = nombres[topProducto];
 document.getElementById("statPedidos").innerText = historial.length;
 document.getElementById("statTotal").innerText = "$" + total;
 }
+function toggleConversor(){
 
+let historial = document.getElementById("panelHistorial");
+let conversor = document.getElementById("panelConversor");
+
+// cerrar historial
+historial.classList.remove("activo");
+
+// abrir/cerrar conversor
+conversor.classList.toggle("activo");
+
+}
+
+function convertirMoneda(){
+
+let compraUSD = parseFloat(document.getElementById("usdValor").value) || 0;
+let venta = parseFloat(document.getElementById("precioVenta").value) || 0;
+let dolar = parseFloat(document.getElementById("cotizacionLocal").value) || 0;
+let correo = parseFloat(document.getElementById("correoArg").value) || 0;
+
+let compraPesos = compraUSD * dolar;
+let costoFinal = compraPesos + correo;
+let ganancia = venta - costoFinal;
+
+let porcentaje = 0;
+
+if(costoFinal > 0){
+    porcentaje = (ganancia / costoFinal) * 100;
+}
+
+// Color y texto
+let textoResultado;
+let colorResultado;
+
+if(ganancia >= 0){
+    textoResultado = "🟢 Ganancia";
+    colorResultado = "#16a34a";
+}else{
+    textoResultado = "🔴 Pérdida";
+    colorResultado = "#dc2626";
+}
+
+document.getElementById("resultadoConversion").innerHTML = `
+<b>💵 Compra:</b> $${compraUSD.toFixed(2)} USD<br>
+<b>💱 Costo local:</b> $${compraPesos.toFixed(0)}<br>
+<b>📦 Correo:</b> $${correo.toFixed(0)}<br>
+<b>💰 Costo total:</b> $${costoFinal.toFixed(0)}<br>
+<b>🏷️ Venta:</b> $${venta.toFixed(0)}<hr style="margin:10px 0;">
+<div style="color:${colorResultado};font-size:22px;font-weight:bold;">
+${textoResultado}: $${Math.abs(ganancia).toFixed(0)}
+</div>
+<b>📈 Rentabilidad:</b> ${porcentaje.toFixed(1)}%
+`;
+
+}
   </script>
